@@ -152,11 +152,20 @@ class Entry_fit(Entry):
         """
         for path, entries in self._fit_content.items():
             node = fdt.GetNode(path)
+            pad_byte = fdt_util.GetInt(node.parent, 'pad-byte', 0)
+            offset = 0
             data = b''
             for entry in entries:
                 if not entry.ObtainContents():
                     return False
+                offset = entry.Pack(offset)
+                pad = entry.offset - len(data) + entry.pad_before
+                if pad > 0:
+                    data += tools.GetBytes(pad_byte, pad)
                 data += entry.GetData()
+                pad = entry.offset + entry.size - len(data)
+                if pad > 0:
+                    data += tools.GetBytes(pad_byte, pad)
             node.AddData('data', data)
 
         fdt.Sync(auto_resize=True)
