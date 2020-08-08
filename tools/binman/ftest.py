@@ -3497,5 +3497,23 @@ class TestFunctional(unittest.TestCase):
         text = tools.GetBytes(0, 0x16) + b'test-text-test' + tools.GetBytes(0, 0x1a)
         self.assertIn(text, data)
 
+    def testDepthchargeKernel(self):
+        """Test generating a depthcharge kernel partition"""
+        data = self._DoReadFile('166_depthcharge_kernel.dts')
+
+        fname = os.path.join(self._indir, 'depthcharge.kpart')
+        tools.WriteFile(fname, data)
+        out = tools.Run('futility', 'vbutil_kernel', '--verify', fname)
+
+        lines = out.splitlines()
+        config = lines[-1].encode()
+        self.assertEqual(U_BOOT_DTB_DATA, config)
+
+        kname = os.path.join(self._indir, 'depthcharge.kpart')
+        tools.Run('futility', 'vbutil_kernel', '--get-vmlinuz', fname,
+                  '--vmlinuz-out', kname)
+        vmlinuz = tools.ReadFile(kname)
+        self.assertEqual(U_BOOT_DATA, vmlinuz[:len(U_BOOT_DATA)])
+
 if __name__ == "__main__":
     unittest.main()
