@@ -555,6 +555,7 @@ void putc(const char c)
 
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
+		pre_console_putc(c);
 		fputc(stdout, c);
 	} else {
 		/* Send directly to the handler */
@@ -606,6 +607,7 @@ void puts(const char *s)
 
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
+		pre_console_puts(s);
 		fputs(stdout, s);
 	} else {
 		/* Send directly to the handler */
